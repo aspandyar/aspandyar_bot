@@ -6,7 +6,6 @@ RUN go build -o main main.go
 FROM alpine:3.19
 WORKDIR /app
 COPY --from=builder /app/main .
-COPY app.env .
 COPY start.sh .
 
 EXPOSE 8080
