@@ -7,7 +7,8 @@ FROM alpine:3.19
 WORKDIR /app
 COPY --from=builder /app/main .
 COPY start.sh .
+RUN chmod +x start.sh
 
 EXPOSE 8080
-CMD [ "/app/main" ]
+# CMD [ "/app/main" ]
 ENTRYPOINT [ "/app/start.sh" ]
