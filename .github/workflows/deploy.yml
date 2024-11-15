@@ -46,4 +46,4 @@ jobs:
           script: |
             cd /home/aspandyar
             docker pull aspandyar/aspandyar_bot:latest
-            docker compose up -d 
+            ocker run -d -p 8080:8080 aspandyar/aspandyar_bot:latest
