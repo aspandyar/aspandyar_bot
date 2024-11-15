@@ -33,5 +33,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/aspandyar
+
+            docker ps -q --filter "name=aspandyar_bot" | grep -q . && docker stop aspandyar_bot && docker rm aspandyar_bot || echo "No running container to remove"
+            docker images -q aspandyar/aspandyar_bot:latest | grep -q . && docker rmi -f aspandyar/aspandyar_bot:latest || echo "No image to remove"
+            
             docker pull aspandyar/aspandyar_bot:latest
-            docker run -d -p 8080:8080 aspandyar/aspandyar_bot:latest
+            docker run -d --name aspandyar_bot -p 8080:8080 aspandyar/aspandyar_bot:latest
