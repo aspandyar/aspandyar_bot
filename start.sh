@@ -10,4 +10,4 @@ echo "start the app"
 
 ls -al /app
 
-exec "$@"
+exec /app/main
