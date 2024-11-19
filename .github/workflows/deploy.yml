@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Add secrets to start.sh
-        run: sed -i '8i\echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> "/app/app.env"' start.sh
+        run: sed -i '8i\echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> "/app/app.env"\n' start.sh
 
       - name: read
         run: cat start.sh
@@ -31,6 +31,17 @@ jobs:
       - name: Push Docker image to Docker Hub
         run: docker push aspandyar/aspandyar_bot:latest
 
+      - name: Clear Docker images and containers on server
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/aspandyar
+            docker ps -aq --filter "name=aspandyar_bot" | grep -q . && docker stop aspandyar_bot && docker rm aspandyar_bot || echo "No running container to remove"
+            docker images -q aspandyar/aspandyar_bot:latest | grep -q . && docker rmi -f aspandyar/aspandyar_bot:latest || echo "No image to remove"
+
       - name: SSH to Server and Deploy with Docker Compose
         uses: appleboy/ssh-action@v0.1.5
         with:
@@ -39,9 +50,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/aspandyar
-
-            docker ps -aq --filter "name=aspandyar_bot" | grep -q . && docker stop aspandyar_bot && docker rm aspandyar_bot || echo "No running container to remove"
-            docker images -q aspandyar/aspandyar_bot:latest | grep -q . && docker rmi -f aspandyar/aspandyar_bot:latest || echo "No image to remove"
-            
             docker pull aspandyar/aspandyar_bot:latest
             docker run -d --name aspandyar_bot -p 8080:8080 aspandyar/aspandyar_bot:latest
