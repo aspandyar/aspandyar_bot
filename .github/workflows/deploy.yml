@@ -19,6 +19,9 @@ jobs:
       - name: Add secrets to start.sh
         run: sed -i '8i\echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> "/app/app.env"' start.sh
 
+      - name: read
+        run: cat start.sh
+
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
