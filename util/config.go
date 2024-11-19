@@ -7,9 +7,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config is the configuration for the application// It is used to configure the application
 type Config struct {
 	ServerAddress string `mapstructure:"SERVER_ADDRESS"`
+	TelegramToken string `mapstructure:"TELEGRAM_TOKEN"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
@@ -33,7 +33,7 @@ func LoadConfig(path string) (config Config, err error) {
 	for i := 0; i < val.NumField(); i++ {
 		field := val.Field(i)
 		if field.Kind() == reflect.String && field.String() == "" {
-			err = fmt.Errorf("Missing required configuration: %s", val.Type().Field(i).Tag.Get("mapstructure"))
+			err = fmt.Errorf("missing required configuration: %s", val.Type().Field(i).Tag.Get("mapstructure"))
 			return
 		}
 	}
