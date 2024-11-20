@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/aspandyar/aspandyar_bot/bot/handlers"
 	"github.com/aspandyar/aspandyar_bot/util"
 	tele "gopkg.in/telebot.v3"
 )
@@ -33,6 +34,14 @@ func (server *ServerBot) SetupRoutes() error {
 
 	server.bot.Handle("/start", func(c tele.Context) error {
 		return c.Send("Welcome to the bot! Use /hello to get greeted.")
+	})
+
+	handlers.InitMarkups()
+
+	server.bot.Handle("/eat", func(c tele.Context) error {
+		serverBot := &handlers.ServerBot{Bot: server.bot}
+		serverBot.RegisterEatHandlers()
+		return c.Send("🍔 Yum! Buttons are now active.", handlers.Menu)
 	})
 
 	server.bot.Handle(tele.OnText, func(c tele.Context) error {
