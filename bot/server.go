@@ -36,10 +36,9 @@ func (server *ServerBot) SetupRoutes() error {
 		return c.Send("Welcome to the bot! Use /hello to get greeted.")
 	})
 
-	handlers.InitMarkups()
-
 	server.bot.Handle("/eat", func(c tele.Context) error {
 		serverBot := &handlers.ServerBot{Bot: server.bot}
+		handlers.InitMarkups()
 		serverBot.RegisterEatHandlers()
 		return c.Send("🍔 Yum! Buttons are now active.", handlers.Menu)
 	})
