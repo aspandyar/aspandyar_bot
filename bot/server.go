@@ -35,6 +35,11 @@ func (server *ServerBot) SetupRoutes() error {
 		return c.Send("Welcome to the bot! Use /hello to get greeted.")
 	})
 
+	server.bot.Handle(tele.OnText, func(c tele.Context) error {
+		c.Send("???")
+		return nil
+	})
+
 	return nil
 }
 
