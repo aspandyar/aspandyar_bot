@@ -43,6 +43,10 @@ func (server *ServerBot) SetupRoutes() error {
 		return c.Send("🍔 Yum! Buttons are now active.", handlers.Menu)
 	})
 
+	server.bot.Handle("/finish", func(c tele.Context) error {
+		return nil
+	})
+
 	server.bot.Handle(tele.OnText, func(c tele.Context) error {
 		c.Send("???")
 		return nil

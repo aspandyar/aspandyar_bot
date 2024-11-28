@@ -1,18 +1,33 @@
 package food
 
 import (
-	"fmt"
-
 	tele "gopkg.in/telebot.v3"
 )
 
-var userChoices = make(map[string]string)
+type Food struct {
+	CategoryChoice string
+	FoodSelection  string
+}
+
+var foodInstance []Food
 
 var (
 	BtnProteins   = tele.Btn{Text: "Белки", Unique: "proteins"}
 	BtnCarbs      = tele.Btn{Text: "Углеводы", Unique: "carbs"}
 	BtnFats       = tele.Btn{Text: "Здоровые жиры", Unique: "fats"}
 	BtnAdditional = tele.Btn{Text: "Дополнительно", Unique: "additional"}
+
+	BtnEggs            = tele.Btn{Text: "Яйца (2-4 шт.)", Unique: "eggs"}
+	BtnCottageCheese   = tele.Btn{Text: "Творог или греческий йогурт", Unique: "cottage_cheese"}
+	BtnTofu            = tele.Btn{Text: "Тофу", Unique: "tofu"}
+	BtnFish            = tele.Btn{Text: "Рыба (тунец, семга)", Unique: "fish"}
+	BtnOatmeal         = tele.Btn{Text: "Овсяная каша с фруктами", Unique: "oatmeal"}
+	BtnWholeGrainBread = tele.Btn{Text: "Цельнозерновой хлеб с авокадо", Unique: "whole_grain_bread"}
+	BtnNuts            = tele.Btn{Text: "Орехи", Unique: "nuts"}
+	BtnAvocado         = tele.Btn{Text: "Авокадо", Unique: "avocado"}
+	BtnMilk            = tele.Btn{Text: "Стакан молока", Unique: "milk"}
+	BtnProteinShake    = tele.Btn{Text: "Протеиновый коктейль", Unique: "protein_shake"}
+	BtnNone            = tele.Btn{Text: "Пропустить", Unique: "none"}
 )
 
 func HandleBreakfast(c tele.Context) error {
@@ -22,7 +37,7 @@ func HandleBreakfast(c tele.Context) error {
 		MealSelector.Row(BtnFats, BtnAdditional),
 	)
 
-	return c.Send("Вы выбрали Завтрак. Выберите категорию:", MealSelector)
+	return c.Send("Выберите категорию:", MealSelector)
 }
 
 func HandleSelection(c tele.Context) error {
@@ -35,65 +50,47 @@ func HandleSelection(c tele.Context) error {
 		nextStepMessage = "Выберите белки (Proteins):"
 		nextStepButtons = &tele.ReplyMarkup{}
 		nextStepButtons.Inline(
-			nextStepButtons.Row(
-				tele.Btn{Text: "Яйца (2-4 шт.)", Unique: "eggs"},
-				tele.Btn{Text: "Творог или греческий йогурт", Unique: "cottage_cheese"},
-				tele.Btn{Text: "Тофу", Unique: "tofu"},
-				tele.Btn{Text: "Рыба (тунец, семга)", Unique: "fish"},
-			),
+			nextStepButtons.Row(BtnEggs, BtnCottageCheese),
+			nextStepButtons.Row(BtnTofu, BtnFish),
 		)
-		userChoices["category"] = "Proteins"
-
 	case "carbs":
 		nextStepMessage = "Выберите углеводы (Carbs):"
 		nextStepButtons = &tele.ReplyMarkup{}
 		nextStepButtons.Inline(
-			nextStepButtons.Row(
-				tele.Btn{Text: "Овсяная каша с фруктами", Unique: "oatmeal"},
-				tele.Btn{Text: "Цельнозерновой хлеб с авокадо", Unique: "whole_grain_bread"},
-			),
+			nextStepButtons.Row(BtnOatmeal, BtnWholeGrainBread),
 		)
-		userChoices["category"] = "Carbs"
-
 	case "fats":
 		nextStepMessage = "Выберите здоровые жиры (Fats):"
 		nextStepButtons = &tele.ReplyMarkup{}
 		nextStepButtons.Inline(
-			nextStepButtons.Row(
-				tele.Btn{Text: "Орехи", Unique: "nuts"},
-				tele.Btn{Text: "Авокадо", Unique: "avocado"},
-			),
+			nextStepButtons.Row(BtnNuts, BtnAvocado),
 		)
-		userChoices["category"] = "Fats"
-
 	case "additional":
 		nextStepMessage = "Дополнительные опции:"
 		nextStepButtons = &tele.ReplyMarkup{}
 		nextStepButtons.Inline(
-			nextStepButtons.Row(
-				tele.Btn{Text: "Стакан молока", Unique: "milk"},
-				tele.Btn{Text: "Протеиновый коктейль", Unique: "protein_shake"},
-				tele.Btn{Text: "Пропустить", Unique: "none"},
-			),
+			nextStepButtons.Row(BtnMilk, BtnProteinShake, BtnNone),
 		)
-		userChoices["category"] = "Additional"
 	}
 
-	c.Edit(nextStepMessage, nextStepButtons)
-
-	return nil
+	return c.Edit(nextStepMessage, nextStepButtons)
 }
 
 func HandleFinalSelection(c tele.Context) error {
-	selectedOption := c.Callback().Unique
-	userChoices["item"] = selectedOption
-
-	var summary string
-	for key, value := range userChoices {
-		summary += fmt.Sprintf("%s: %s\n", key, value)
+	err := c.Respond()
+	if err != nil {
+		return err
 	}
 
-	c.Send("Вы завершили выбор. Ваши выборы:\n" + summary)
+	err = c.Delete()
+	if err != nil {
+		return err
+	}
 
-	return nil
+	choosenFood := c.Callback().Unique
+	if choosenFood != "" {
+
+	}
+
+	return HandleBreakfast(c)
 }
