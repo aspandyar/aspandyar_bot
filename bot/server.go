@@ -36,19 +36,14 @@ func (server *ServerBot) SetupRoutes() error {
 		return c.Send("Welcome to the bot! Use /hello to get greeted.")
 	})
 
-	server.bot.Handle("/eat", func(c tele.Context) error {
-		serverBot := &handlers.ServerBot{Bot: server.bot}
-		handlers.InitMarkups()
-		serverBot.RegisterEatHandlers()
-		return c.Send("🍔 Yum! Buttons are now active.", handlers.Menu)
-	})
-
 	server.bot.Handle("/finish", func(c tele.Context) error {
 		return nil
 	})
 
-	server.bot.Handle(tele.OnText, func(c tele.Context) error {
-		c.Send("???")
+	server.bot.Handle("/begin", func(c tele.Context) error {
+		c.Send("Let's start the conversation!")
+		serverBot := &handlers.ServerBot{Bot: server.bot}
+		serverBot.StartConversation(c)
 		return nil
 	})
 

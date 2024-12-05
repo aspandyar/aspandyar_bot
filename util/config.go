@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 
 	"github.com/spf13/viper"
@@ -10,6 +11,7 @@ import (
 type Config struct {
 	ServerAddress string `mapstructure:"SERVER_ADDRESS"`
 	TelegramToken string `mapstructure:"TELEGRAM_TOKEN"`
+	OpenaiToken   string `mapstructure:"OPENAI_TOKEN"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
@@ -39,4 +41,14 @@ func LoadConfig(path string) (config Config, err error) {
 	}
 
 	return
+}
+
+func LoadPromptByName(name string) (string, error) {
+	filePath := fmt.Sprintf("./notes/%s.txt", name)
+	prompt, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", fmt.Errorf("cannot read prompt: %v", err)
+	}
+
+	return string(prompt), nil
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/aspandyar/aspandyar_bot/api"
 	"github.com/aspandyar/aspandyar_bot/bot"
+	"github.com/aspandyar/aspandyar_bot/bot/chat"
 	"github.com/aspandyar/aspandyar_bot/util"
 )
 
@@ -23,6 +24,16 @@ func main() {
 	err = serverBot.SetupRoutes()
 	if err != nil {
 		log.Fatal("Cannot setup bots routes: ", err)
+	}
+
+	prompt, err := util.LoadPromptByName("prompt")
+	if err != nil {
+		log.Fatal("Cannot load prompt: ", err)
+	}
+
+	err = chat.InitChatWithSystemRole(config.OpenaiToken, prompt)
+	if err != nil {
+		log.Fatal("Cannot init chatgpt, check openai token: ", err)
 	}
 
 	var wg sync.WaitGroup
