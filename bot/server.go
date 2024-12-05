@@ -36,6 +36,24 @@ func (server *ServerBot) SetupRoutes() error {
 		return c.Send("Welcome to the bot! Use /hello to get greeted.")
 	})
 
+	server.bot.Handle("/ping", func(c tele.Context) error {
+		payload := c.Message().Payload
+
+		if payload == "" {
+			return c.Send("Pong!")
+		}
+
+		if payload[0] == '@' {
+			c.Send("Got you!")
+			for i := 0; i < 100; i++ {
+				c.Send(payload)
+			}
+		}
+
+		return c.Send("Pong!")
+
+	})
+
 	server.bot.Handle("/finish", func(c tele.Context) error {
 		return nil
 	})
