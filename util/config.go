@@ -46,16 +46,6 @@ func LoadConfig(path string) (config Config, err error) {
 func LoadPromptByName(name string) (string, error) {
 	filePath := fmt.Sprintf("./notes/%s.txt", name)
 
-	files, err := os.ReadDir(".")
-	if err != nil {
-		return "", fmt.Errorf("cannot read directory: %v", err)
-	}
-
-	fmt.Println("Files in ./notes directory:")
-	for _, file := range files {
-		fmt.Println(file.Name())
-	}
-
 	prompt, err := os.ReadFile(filePath)
 	if err != nil {
 		return "", fmt.Errorf("cannot read prompt: %v", err)
