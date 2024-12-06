@@ -36,6 +36,29 @@ func (server *ServerBot) SetupRoutes() error {
 		return c.Send("Welcome to the bot! Use /hello to get greeted.")
 	})
 
+	server.bot.Handle("/ping", func(c tele.Context) error {
+		payload := c.Message().Payload
+
+		if payload == "" {
+			return c.Send("Pong!")
+		}
+
+		if len(payload) > 0 && payload[0] == '@' {
+			c.Send("Got you!")
+
+			if err := sendMessagesInBatches(c, payload, 100); err != nil {
+				log.Printf("Error sending messages: %v", err)
+				return c.Send("Something went wrong while sending messages.")
+			}
+
+		} else {
+			c.Send("Payload must start with '@'!")
+		}
+
+		return c.Send("Pong!")
+
+	})
+
 	server.bot.Handle("/finish", func(c tele.Context) error {
 		return nil
 	})
