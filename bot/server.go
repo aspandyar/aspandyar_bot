@@ -43,11 +43,16 @@ func (server *ServerBot) SetupRoutes() error {
 			return c.Send("Pong!")
 		}
 
-		if payload[0] == '@' {
+		if len(payload) > 0 && payload[0] == '@' {
 			c.Send("Got you!")
-			for i := 0; i < 100; i++ {
-				c.Send(payload)
+
+			if err := sendMessagesInBatches(c, payload, 100); err != nil {
+				log.Printf("Error sending messages: %v", err)
+				return c.Send("Something went wrong while sending messages.")
 			}
+
+		} else {
+			c.Send("Payload must start with '@'!")
 		}
 
 		return c.Send("Pong!")
