@@ -5,6 +5,7 @@ import (
 
 	"github.com/aspandyar/aspandyar_bot/bot"
 	"github.com/aspandyar/aspandyar_bot/bot/chat"
+	"github.com/aspandyar/aspandyar_bot/bot/routes"
 	"github.com/aspandyar/aspandyar_bot/util"
 )
 
@@ -19,7 +20,9 @@ func main() {
 		log.Fatal("Cannot create server bot: ", err)
 	}
 
-	err = serverBot.SetupRoutes()
+	wrappedBot := &routes.ServerBotWrapper{ServerBot: serverBot}
+
+	err = wrappedBot.SetupRoutes()
 	if err != nil {
 		log.Fatal("Cannot setup bots routes: ", err)
 	}

@@ -7,7 +7,7 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-func sendMessagesInBatches(c tele.Context, message string, total int) error {
+func SendMessagesInBatches(c tele.Context, message string, total int) error {
 	const batchSize = 1
 	const delayBetweenBatches = 5
 
