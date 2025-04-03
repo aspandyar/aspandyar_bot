@@ -9,9 +9,10 @@ import (
 )
 
 type Config struct {
-	ServerAddress string `mapstructure:"SERVER_ADDRESS"`
-	TelegramToken string `mapstructure:"TELEGRAM_TOKEN"`
-	OpenaiToken   string `mapstructure:"OPENAI_TOKEN"`
+	ServerAddress  string `mapstructure:"SERVER_ADDRESS"`
+	TelegramToken  string `mapstructure:"TELEGRAM_TOKEN"`
+	OpenaiToken    string `mapstructure:"OPENAI_TOKEN"`
+	TelegramChatID int64  `mapstructure:"TELEGRAM_CHAT_ID"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

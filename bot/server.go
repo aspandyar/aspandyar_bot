@@ -1,7 +1,11 @@
 package bot
 
 import (
+	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/aspandyar/aspandyar_bot/bot/handlers"
@@ -10,7 +14,8 @@ import (
 )
 
 type ServerBot struct {
-	bot *tele.Bot
+	bot    *tele.Bot
+	chatID int64
 }
 
 func NewServerBot(config util.Config) (*ServerBot, error) {
@@ -24,12 +29,18 @@ func NewServerBot(config util.Config) (*ServerBot, error) {
 		return nil, err
 	}
 
-	return &ServerBot{bot: b}, nil
+	return &ServerBot{bot: b, chatID: config.TelegramChatID}, nil
 }
 
 func (server *ServerBot) SetupRoutes() error {
 	server.bot.Handle("/hello", func(c tele.Context) error {
 		return c.Send("Hello!")
+	})
+
+	server.bot.Handle("/chatid", func(c tele.Context) error {
+		chatID := c.Chat().ID
+		server.chatID = chatID
+		return c.Send(fmt.Sprintf("Chat ID: %d", chatID))
 	})
 
 	server.bot.Handle("/start", func(c tele.Context) error {
@@ -56,7 +67,6 @@ func (server *ServerBot) SetupRoutes() error {
 		}
 
 		return c.Send("Pong!")
-
 	})
 
 	server.bot.Handle("/finish", func(c tele.Context) error {
@@ -73,7 +83,24 @@ func (server *ServerBot) SetupRoutes() error {
 	return nil
 }
 
-func (server *ServerBot) Start() {
+func (server *ServerBot) Start(config util.Config) {
 	log.Println("Starting the bot...")
-	server.bot.Start()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		server.bot.Start()
+	}()
+
+	<-stop
+	log.Println("Shutting down the bot...")
+
+	_, err := server.bot.Send(tele.ChatID(server.chatID), "I am duying... Goodbye! :(")
+	if err != nil {
+		log.Printf("Failed to send shutdown message: %v", err)
+	}
+
+	server.bot.Stop()
+	log.Println("Bot stopped.")
 }
