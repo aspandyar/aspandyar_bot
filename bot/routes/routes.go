@@ -27,6 +27,15 @@ func (server *ServerBotWrapper) SetupRoutes() error {
 		return c.Send(fmt.Sprintf("Chat ID: %d", chatID))
 	})
 
+	server.Bot.Handle("/userid", func(c tele.Context) error {
+		userID := c.Sender().ID
+
+		if userID == 0 {
+			return c.Send("User ID not found.")
+		}
+		return c.Send(fmt.Sprintf("User ID: %d", userID))
+	})
+
 	server.Bot.Handle("/start", func(c tele.Context) error {
 		return c.Send("Welcome to the bot! Use /hello to get greeted.")
 	})
