@@ -1,3 +1,8 @@
+# env files
 app.env
-secret
+
+# vscode settings
 .vscode/
+
+# downloaded files
+downloads/
