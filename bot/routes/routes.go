@@ -69,6 +69,26 @@ func (server *ServerBotWrapper) SetupRoutes() error {
 		return
 	})
 
+	server.Bot.Handle("/modifybuttons", func(c tele.Context) error {
+		// Create a new InlineButton
+		newButtons := [][]tele.InlineButton{
+			{
+				tele.InlineButton{
+					Text: "New Button",
+					Data: "new_action", // Can be a callback action
+				},
+			},
+		}
+
+		// Create new ReplyMarkup with updated buttons
+		markup := &tele.ReplyMarkup{
+			InlineKeyboard: newButtons,
+		}
+
+		// Modify the current message to replace the buttons
+		return c.Edit(c.Message().Text, markup)
+	})
+
 	server.Bot.Handle("/start", func(c tele.Context) error {
 		return c.Send("Welcome to the bot! Use /hello to get greeted.")
 	})
