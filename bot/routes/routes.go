@@ -135,6 +135,21 @@ func (server *ServerBotWrapper) SetupRoutes() error {
 		return nil
 	})
 
+	server.Bot.Handle("/test", func(c tele.Context) error {
+		c.Send("This is a test message.")
+		url := "https://google.com"
+
+		file := tele.FromURL(url)
+		fmt.Println(file)
+		msg, err := server.Bot.Send(c.Sender(), file)
+		if err != nil {
+			log.Printf("Error sending file: %v", err)
+			return c.Send("Failed to send the file.")
+		}
+
+		return c.Send(fmt.Sprintf("File sent successfully: %s", msg.Text))
+	})
+
 	server.Bot.Handle("/begin", func(c tele.Context) error {
 		c.Send("Let's start the conversation!")
 		serverBot := &handlers.ServerBot{Bot: server.Bot}
