@@ -27,6 +27,68 @@ func (server *ServerBotWrapper) SetupRoutes() error {
 		return c.Send(fmt.Sprintf("Chat ID: %d", chatID))
 	})
 
+	server.Bot.Handle("/userid", func(c tele.Context) error {
+		payload := c.Message().Payload
+		if payload == "" {
+
+			userID := c.Sender().ID
+
+			if userID == 0 {
+				return c.Send("User ID not found.")
+			}
+			return c.Send(fmt.Sprintf("User ID: %d", userID))
+		}
+
+		return c.Send("Sorry, I can't do it now. Because my creator is very lazy and he didn't implement this feature yet.")
+	})
+
+	server.Bot.Handle(tele.OnSticker, func(c tele.Context) (err error) {
+		err = nil
+
+		userID := c.Sender().ID
+		if !bot.IsUserTrusted(int(userID)) {
+			return
+		}
+
+		// Proceed with sticker saving if the user is trusted
+		sticker := c.Message().Sticker
+		if sticker == nil {
+			return
+		}
+
+		path := "./downloads/stickers/"
+		filename := fmt.Sprintf("%s%s.webp", path, sticker.File.FileID)
+
+		err = server.Bot.Download(&sticker.File, filename)
+		if err != nil {
+			log.Printf("Error downloading sticker: %v", err)
+			return
+		}
+
+		log.Println("Sticker downloaded successfully:", filename)
+		return
+	})
+
+	server.Bot.Handle("/modifybuttons", func(c tele.Context) error {
+		// Create a new InlineButton
+		newButtons := [][]tele.InlineButton{
+			{
+				tele.InlineButton{
+					Text: "New Button",
+					Data: "new_action", // Can be a callback action
+				},
+			},
+		}
+
+		// Create new ReplyMarkup with updated buttons
+		markup := &tele.ReplyMarkup{
+			InlineKeyboard: newButtons,
+		}
+
+		// Modify the current message to replace the buttons
+		return c.Edit(c.Message().Text, markup)
+	})
+
 	server.Bot.Handle("/start", func(c tele.Context) error {
 		return c.Send("Welcome to the bot! Use /hello to get greeted.")
 	})
@@ -63,7 +125,7 @@ func (server *ServerBotWrapper) SetupRoutes() error {
 			}
 
 		} else {
-			c.Send("Payload must start with '@'!")
+			c.Send("Username must start with '@'!")
 		}
 
 		return c.Send("Pong!")
@@ -71,6 +133,21 @@ func (server *ServerBotWrapper) SetupRoutes() error {
 
 	server.Bot.Handle("/finish", func(c tele.Context) error {
 		return nil
+	})
+
+	server.Bot.Handle("/test", func(c tele.Context) error {
+		c.Send("This is a test message.")
+		url := "https://google.com"
+
+		file := tele.FromURL(url)
+		fmt.Println(file)
+		msg, err := server.Bot.Send(c.Sender(), file)
+		if err != nil {
+			log.Printf("Error sending file: %v", err)
+			return c.Send("Failed to send the file.")
+		}
+
+		return c.Send(fmt.Sprintf("File sent successfully: %s", msg.Text))
 	})
 
 	server.Bot.Handle("/begin", func(c tele.Context) error {
@@ -87,6 +164,7 @@ func (server *ServerBotWrapper) SetupRoutes() error {
 			helpMessage := "Available commands:\n" +
 				"/hello - Greet the bot\n" +
 				"/chatid - Get your chat ID\n" +
+				"/userid - Get your user ID\n" +
 				"/start - Start the bot\n" +
 				"/ping - Ping the bot\n" +
 				"/finish - Finish the conversation (chat gpt) \n" +
@@ -113,6 +191,11 @@ func (server *ServerBotWrapper) SetupRoutes() error {
 			detailedHelp := "Detailed help for /chatid:\n" +
 				`/chatid - The bot will respond with your chat ID. 
 				That chat ID would stored, and if bot would stop, he woudl send his last words to that chat`
+			return c.Send(detailedHelp)
+		case "userid":
+			detailedHelp := "Detailed help for /userid:\n" +
+				"/userid - The bot will respond with your user ID. " +
+				"Note: This feature is not fully implemented yet."
 			return c.Send(detailedHelp)
 		case "start":
 			detailedHelp := "Detailed help for /start:\n" +
